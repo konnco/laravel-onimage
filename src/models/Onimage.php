@@ -1,4 +1,5 @@
 <?php
+
 namespace Konnco\Onimage\models;
 
 use Illuminate\Database\Eloquent\Model;

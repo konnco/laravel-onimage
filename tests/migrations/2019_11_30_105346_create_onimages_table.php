@@ -19,7 +19,6 @@ class CreateOnimagesTable extends Migration
             $table->timestamps();
         });
 
-
         Schema::create('onimages', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('attribute');
