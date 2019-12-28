@@ -35,6 +35,6 @@ return [
     |
     */
     'sizes' => [
-        'original' => [null, null]
-    ]
+        'original' => [null, null],
+    ],
 ];
