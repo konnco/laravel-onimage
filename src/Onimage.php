@@ -6,15 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Image;
-use Mimey\MimeTypes;
 use Konnco\Onimage\models\Onimage as OnimageModel;
-
+use Mimey\MimeTypes;
 
 trait Onimage
 {
-
     /**
      * @param null $locale
+     *
      * @return mixed
      */
     public function onimagetable()
@@ -24,12 +23,11 @@ trait Onimage
 
     /**
      * defined image, use
-     * protected $imageAttributes
+     * protected $imageAttributes.
      */
-
     protected $onimage = [
         'attributes' => [],
-        'modified' => []
+        'modified'   => [],
     ];
 
     /**
@@ -45,7 +43,6 @@ trait Onimage
             $model->onimageSavedObserver();
         });
 
-
 //        static::deleting(function (Model $model) {
 //            return $model->deleteTranslations();
 //        });
@@ -57,7 +54,7 @@ trait Onimage
     }
 
     /**
-     * Saving Image to local
+     * Saving Image to local.
      */
     private function onimageSavedObserver()
     {
@@ -76,15 +73,15 @@ trait Onimage
     private function onimageSave($attribute, \Intervention\Image\Image $image, $sizes = ['original'])
     {
         $image->backup();
-        $mimes = new MimeTypes;
+        $mimes = new MimeTypes();
         $fileExtension = $mimes->getExtension($image->mime());
-        $filename = Str::uuid() . "." . $fileExtension;
+        $filename = Str::uuid().'.'.$fileExtension;
         foreach ($sizes as $size) {
-            $savePath = "images/$size/" . date('Y/m/d') . "/" . $filename;
+            $savePath = "images/$size/".date('Y/m/d').'/'.$filename;
             // Checking Configuration
-            $sizeCheck = config('onimage.sizes.' . $size, null);
+            $sizeCheck = config('onimage.sizes.'.$size, null);
             if ($sizeCheck == null) {
-                throw new \Exception($size . ' is not a valid image size');
+                throw new \Exception($size.' is not a valid image size');
             }
 
             $width = config("onimage.sizes.$size.0", null);
@@ -100,7 +97,7 @@ trait Onimage
             Storage::disk(config('onimage.driver'))->put($savePath, $image->__toString());
 
             // save on databases
-            $model = new OnimageModel;
+            $model = new OnimageModel();
             $model->attribute = $attribute;
             $model->size = $size;
             $model->path = $savePath;
@@ -117,7 +114,7 @@ trait Onimage
     }
 
     /**
-     * Saving Image to local
+     * Saving Image to local.
      *
      * move all attributes into temporary protected variables
      */
@@ -132,11 +129,11 @@ trait Onimage
                 'multiple' => false,
             ];
 
-            $config = collect(explode("|", $image));
+            $config = collect(explode('|', $image));
             $config->each(function ($configItem) use (&$attributes, &$defaultConfig) {
-                if (strpos($configItem, "sizes") !== false) {
-                    $sizeList = explode(":", $configItem)[1];
-                    $sizeArray = explode(",", $sizeList);
+                if (strpos($configItem, 'sizes') !== false) {
+                    $sizeList = explode(':', $configItem)[1];
+                    $sizeArray = explode(',', $sizeList);
                     $defaultConfig['size'] = $sizeArray;
                 } elseif (strpos($configItem, 'multiple') !== false) {
                     $defaultConfig['multiple'] = true;
@@ -159,7 +156,7 @@ trait Onimage
             $defaultConfig['files'] = array_filter($defaultConfig['files'], 'strlen');
 
             if ($defaultConfig['nullable'] === false && count($defaultConfig['files']) == 0) {
-                throw new \Exception($key . ' attribute is null, define on your configuration nullable into your configuration.');
+                throw new \Exception($key.' attribute is null, define on your configuration nullable into your configuration.');
             }
 
             $this->onimage['modified'][$key] = $defaultConfig;
@@ -177,21 +174,21 @@ trait Onimage
     {
         $imageAttributes = $this->imageAttributes ?? [];
         if (array_key_exists($attribute, $imageAttributes) == false) {
-            throw new \Exception($attribute . ' Attribute not found');
+            throw new \Exception($attribute.' Attribute not found');
         }
 
         $driver = config('onimage.driver');
-        $url = config('filesystems.disks.' . $driver . ".url");
+        $url = config('filesystems.disks.'.$driver.'.url');
         $images = $this->onimagetable()->where('attribute', $attribute)->where('size', $size);
 
         $responseImage = [];
 
-        if (strpos($this->imageAttributes[$attribute], "multiple") !== false) {
+        if (strpos($this->imageAttributes[$attribute], 'multiple') !== false) {
             foreach ($images->get() as $image) {
-                $responseImage[$image->id] = $url . "/" . $image->path;
+                $responseImage[$image->id] = $url.'/'.$image->path;
             }
         } else {
-            $responseImage = $url . "/" . $images->first()->path;
+            $responseImage = $url.'/'.$images->first()->path;
         }
 
         return $responseImage;
@@ -284,7 +281,7 @@ trait Onimage
         }
     }
 
-    /**
+    /*
      * Checking Model is softdeleting or not.
      *
      * @return bool
