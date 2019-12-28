@@ -2,12 +2,12 @@
 
 **If you want the faster way to translate your model and store it in a single table, this package is built for you.**
 
-[![Build Status](https://travis-ci.org/Konnco/laravel-transeloquent.svg?branch=master)](https://travis-ci.org/Konnco/laravel-transeloquent)
-[![Latest Stable Version](https://poser.pugx.org/konnco/laravel-transeloquent/v/stable)](https://packagist.org/packages/konnco/laravel-transeloquent)
-[![Total Downloads](https://poser.pugx.org/konnco/laravel-transeloquent/downloads)](https://packagist.org/packages/konnco/laravel-transeloquent)
-[![Latest Unstable Version](https://poser.pugx.org/konnco/laravel-transeloquent/v/unstable)](https://packagist.org/packages/konnco/laravel-transeloquent)
-[![License](https://poser.pugx.org/konnco/laravel-transeloquent/license)](https://packagist.org/packages/konnco/laravel-transeloquent)
-[![StyleCI](https://github.styleci.io/repos/225027362/shield?branch=master)](https://github.styleci.io/repos/225027362)
+[![Build Status](https://travis-ci.org/Konnco/laravel-onimage.svg?branch=master)](https://travis-ci.org/Konnco/laravel-onimage)
+[![Latest Stable Version](https://poser.pugx.org/konnco/laravel-onimage/v/stable)](https://packagist.org/packages/konnco/laravel-onimage)
+[![Total Downloads](https://poser.pugx.org/konnco/laravel-onimage/downloads)](https://packagist.org/packages/konnco/laravel-onimage)
+[![Latest Unstable Version](https://poser.pugx.org/konnco/laravel-onimage/v/unstable)](https://packagist.org/packages/konnco/laravel-onimage)
+[![License](https://poser.pugx.org/konnco/laravel-onimage/license)](https://packagist.org/packages/konnco/laravel-onimage)
+[![StyleCI](https://github.styleci.io/repos/228747586/shield?branch=master)](https://github.styleci.io/repos/228747586)
 
 This is a Laravel package for translatable models. Its goal is to remove the complexity in retrieving and storing multilingual model instances. With this package you write less code, as the translations are being fetched/saved when you fetch/save your instance.
 
