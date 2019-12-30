@@ -1,0 +1,1 @@
+C:37:"PHPUnit\Runner\DefaultTestResultCache":282:{a:2:{s:7:"defects";a:2:{s:47:"Konnco\Onimage\Tests\OnimageTest::testTranslate";i:3;s:44:"Konnco\Onimage\Tests\OnimageTest::testUpload";i:4;}s:5:"times";a:2:{s:47:"Konnco\Onimage\Tests\OnimageTest::testTranslate";d:4.105;s:44:"Konnco\Onimage\Tests\OnimageTest::testUpload";d:4.138;}}}
