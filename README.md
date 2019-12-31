@@ -142,4 +142,3 @@ You can insert these types into onimage field :
 
 [//]: contributor-faces
 <a href="https://github.com/frankyso"><img src="https://avatars.githubusercontent.com/u/5705520?v=3" title="frankyso" width="80" height="80"></a>
-[//]: contributor-faces
