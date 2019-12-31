@@ -9,15 +9,15 @@
 [![License](https://poser.pugx.org/konnco/laravel-onimage/license)](https://packagist.org/packages/konnco/laravel-onimage)
 [![StyleCI](https://github.styleci.io/repos/228747586/shield?branch=master)](https://github.styleci.io/repos/228747586)
 
-This is a Laravel package for translatable models. Its goal is to remove the complexity in retrieving and storing multilingual model instances. With this package you write less code, as the translations are being fetched/saved when you fetch/save your instance.
+This package is designed to boost up your developing time in managing your image in Laravel framework.
 
-Maybe out there there's so many package that work the same way, and has more performance, but the purpose this package is make your development time faster.
+This package based on the famous [Intervention/Image](http://image.intervention.io)
 
 ***This package is still in alpha version, so the update may broke your application.***
 
 ## Installation
 ```php
-composer require konnco/laravel-transeloquent
+composer require composer require konnco/laravel-onimage
 ```
 
 ```php
@@ -29,19 +29,49 @@ php artisan migrate
 ```
 
 ## Configuration
-you can find transeloquent configuration here. `config/transeloquent.php`
+you can find onimage configuration here. `config/onimage.php`
 
 ```php
-return [
-    // default locale
-    'locale' => 'en',
-    
-    // transeloquent model
-    'model' => Konnco\Transeloquent\models\Transeloquent::class
-]; 
+    /*
+    |--------------------------------------------------------------------------
+    | Image Upload Drivers
+    |--------------------------------------------------------------------------
+    |
+    | define driver you should use to upload your image.
+    |
+    */
+
+    'driver' => 'public',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Available image sizes
+    |--------------------------------------------------------------------------
+    |
+    | define driver you should use to upload your image.
+    |
+    | size example original :
+    | * width
+    | * height
+    | * position
+    |       * top-left
+    |       * top
+    |       * top-right
+    |       * left
+    |       * center (default)
+    |       * right
+    |       * bottom-left
+    |       * bottom
+    |       * bottom-right
+    |
+    */
+    'sizes' => [
+        'original' => [null, null],
+        'more-size' => [width, height, position]
+    ],
 ```
 
-Add transeloquent traits into your model
+Add onimage traits into your model
 
 ```php
 namespace App;
@@ -50,85 +80,64 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class News extends Model {
-    use \Konnco\Transeloquent\Transeloquent;
+    use \Konnco\Onimage\Onimage;
 }
 ```
 
-and the default excluded field is `id`, `created_at`, `updated_at` these fields will not saved into database.
+and then define your field for images.
 
-if you want to add only some fields to be translated, you may have to add `$translateOnly` into your model.
+in this package we separate our image type into 2 section
+* single (usually used for featured image)
+* multiple (usually used for gallery image)
+
+in your model define protected field named `protected $imageAttributes` following example below :
 ```php
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Konnco\Transeloquent\Transeloquent;
+use Konnco\Onimage\Onimage;
 
 class News extends Model {
-    use Transeloquent;
+    use Onimage;
     
-    protected $translateOnly = ['translate-field-1', 'translate-field-2'];
+    protected $imageAttributes = [
+                                    'cover'     => '',
+                                    'galleries' => 'multiple|sizes:original,square|nullable',
+                                 ];
 }
 ```
 
-if you want to add more excluded field from translated, you may have to add `$translateExcept` into your model.
-
-```php
-namespace App;
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Konnco\Transeloquent\Transeloquent;
-
-class News extends Model {
-    use Transeloquent;
-    
-    protected $translateExcept = ['dont-translate-1', 'dont-translate-2'];
-}
-```
-**Note** : If you have set `$translateOnly` variable, it will be executed first. Make sure you don't use `$translateOnly` variable in your model if you want to use `$translateExcept` variable.
+Available Rules :
+1. `multiple` these is used to define multiple image into field.
+2. `sizes:configsize1,configsize2` these is used to define current field is going to resize into config size that you define in `config/onimage.php`.
+3. `nullable` these is used to define image field can be nulled.
 
 ## Quick Example
-### Getting translated attributes
-Original Attributes In English or based on configuration in `app.transeloquent.default_locale`
+### Upload your image
 ```php
-//in the original language
-$post = Post::first();
-echo $post->title; // My first post
-```
----
-Translated attributes
-```php
-App::setLocale('id');
-$post = Post::first();
-echo $post->title; // Post Pertama Saya
+$fruit = new Fruit();
+$fruit->name = 'banana';
+$fruit->cover = 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80';
+$fruit->galleries = [
+    'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
+    'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
+];
+$fruit->save();
 ```
 
-### Saving translated attributes
-To save translation you must have the initial data.
-
-for example you want to save indonesian translation.
-```php
-App::setLocale('id');
-$post = Post::first();
-$post->title = "Post Pertama Saya";
-$post->save();
-
-// or set locale for specific model
-
-$post = Post::first();
-$post->setLocale('id')
-$post->title = "Post Pertama Saya";
-$post->save();
-```
-
-### Checking if Translation Available
-```php
-$post = Post::first();
-$post->translationExist('id'); //return boolean
-```
+## Upload Type
+You can insert these types into onimage field :
+* string - Path of the image in filesystem.
+* string - URL of an image (allow_url_fopen must be enabled).
+* string - Binary image data.
+* string - Data-URL encoded image data.
+* string - Base64 encoded image data.
+* resource - PHP resource of type gd. (when using GD driver)
+* object - Imagick instance (when using Imagick driver)
+* object - Intervention\Image\Image instance
+* object - SplFileInfo instance (To handle Laravel file uploads via Symfony\Component\HttpFoundation\File\UploadedFile)
 
 ## Authors
 
 * **Franky So** - *Initial work* - [Konnco](https://github.com/konnco)
-* **Rizal Nasution** - *Initial work* - [Konnco](https://github.com/konnco)
