@@ -20,6 +20,7 @@ class CreateOnimagesTable extends Migration
             $table->text('path');
             $table->integer('width');
             $table->integer('height');
+            $table->bigInteger('parent_id')->nullable();
             $table->nullableMorphs('onimagetable');
             $table->timestamps();
         });

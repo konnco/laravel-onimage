@@ -116,8 +116,7 @@ Available Rules :
 ## Quick Example
 ### Upload your image
 ```php
-$fruit = new Fruit();
-$fruit->name = 'banana';
+$fruit = Fruit::find(1);
 $fruit->cover = 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80';
 $fruit->galleries = [
     'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
@@ -125,6 +124,36 @@ $fruit->galleries = [
 ];
 $fruit->save();
 ```
+
+and its all done, all your image will resize based on your configuration.
+
+
+### Update Image
+```php
+$fruit = new Fruit();
+$fruit->name = 'banana';
+$fruit->cover = 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80';
+$fruit->galleries = [
+    '1', // image id
+    '2', // image id
+    'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
+    'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
+];
+$fruit->save();
+```
+
+all image id that you not returned back, will be deleted. 
+
+
+### Delete Image
+```php
+$fruit = new Fruit();
+$fruit->name = 'banana';
+$fruit->galleries = []; //just set it into empty array, and all image will be cleared.
+$fruit->save();
+```
+
+_you cannot delete Single image or set it into empty.
 
 ## Upload Type
 You can insert these types into onimage field :
@@ -141,3 +170,6 @@ You can insert these types into onimage field :
 ## Authors
 
 * **Franky So** - *Initial work* - [Konnco](https://github.com/konnco)
+
+## Contributing
+we appreciate all contributions, feel free to write some code or request package.
