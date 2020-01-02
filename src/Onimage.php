@@ -39,8 +39,12 @@ trait Onimage
             $model->onimageSavingObserver();
         });
 
-        static::saved(function (Model $model) {
-            $model->onimageSavedObserver();
+        static::updated(function (Model $model) {
+            $model->onimageUpdatedObserver();
+        });
+
+        static::created(function (Model $model) {
+            $model->onimageCreatedObserver();
         });
 
 //        static::deleting(function (Model $model) {
@@ -54,9 +58,9 @@ trait Onimage
     }
 
     /**
-     * Saving Image to local.
+     * Saving Image.
      */
-    private function onimageSavedObserver()
+    private function onimageCreatedObserver()
     {
         foreach ($this->onimage['modified'] as $image) {
             if (count($image['files']) === 0) {
@@ -70,12 +74,68 @@ trait Onimage
         }
     }
 
+    /**
+     * Updating Image.
+     */
+    private function onimageUpdatedObserver()
+    {
+        foreach ($this->onimage['modified'] as $image) {
+            if (count($image['files']) === 0) {
+                // it means this image type should delete all
+                $this->onimagetable()->delete();
+                continue;
+            }
+
+            // DELETE IMAGES THAT HAVE DIFFERENCE
+            $deleteImageState = collect($image['files'])->filter(function ($value) {
+                return is_numeric($value);
+            });
+
+            if ($deleteImageState->count() > 0) {
+                // this means there image that we should delete.
+                // get image size
+                $imagetable = $this->onimagetable()->find($deleteImageState->first());
+                $imagesize = $imagetable->size;
+
+                // find all image that same size with this;
+                $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
+                    return $key;
+                });
+
+                $shouldDelete = $availableOnimage->diff($deleteImageState);
+                $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
+                    if ($value->parent_id == null) {
+                        // delete all belows
+                        $this->onimagetable()->where('parent_id', $value->id)->delete();
+                        $value->delete();
+                    } else {
+                        $this->onimagetable()->where('id', $value->parent_id)->delete();
+                        $this->onimagetable()->where('parent_id', $value->parent_id)->delete();
+                    }
+                });
+            }
+
+            // UPLOAD NEW IMAGES
+            collect($image['files'])->filter(function ($value) {
+                return !is_numeric($value);
+            })->each(function ($value) use ($image) {
+                $interventionImage = Image::make($value);
+                $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
+            });
+        }
+    }
+
     private function onimageSave($attribute, \Intervention\Image\Image $image, $sizes = ['original'])
     {
+        $sizes = collect($sizes)->sortBy(function ($size, $key) {
+            return ($size) == 'original' ? 0 : 1;
+        });
+
         $image->backup();
         $mimes = new MimeTypes();
         $fileExtension = $mimes->getExtension($image->mime());
         $filename = Str::uuid().'.'.$fileExtension;
+        $parent = null;
         foreach ($sizes as $size) {
             $savePath = "images/$size/".date('Y/m/d').'/'.$filename;
             // Checking Configuration
@@ -103,7 +163,12 @@ trait Onimage
             $model->path = $savePath;
             $model->width = $image->width();
             $model->height = $image->height();
+            $model->parent_id = $parent;
             $model->save();
+
+            if ($size === 'original') {
+                $parent = $model->id;
+            }
 
             $this->onimagetable()->save($model);
 
@@ -120,6 +185,8 @@ trait Onimage
      */
     private function onimageSavingObserver()
     {
+//        dd(Storage::disk(config('onimage.driver'))->deleteDirectory('images'));
+
         $attributes = collect($this->attributes);
         $imageAttributes = collect($this->imageAttributes ?? []);
 

@@ -55,7 +55,7 @@ abstract class TestCase extends OrchestraTestCase
     protected function getPackageProviders($app)
     {
         return [
-//            TranseloquentServiceProvider::class,
+            //            TranseloquentServiceProvider::class,
             \Intervention\Image\ImageServiceProvider::class,
         ];
     }
