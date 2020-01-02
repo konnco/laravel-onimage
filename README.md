@@ -1,6 +1,4 @@
-# Laravel Transeloquent
-
-**If you want the faster way to translate your model and store it in a single table, this package is built for you.**
+# Laravel Onimage
 
 [![Build Status](https://travis-ci.org/Konnco/laravel-onimage.svg?branch=master)](https://travis-ci.org/Konnco/laravel-onimage)
 [![Latest Stable Version](https://poser.pugx.org/konnco/laravel-onimage/v/stable)](https://packagist.org/packages/konnco/laravel-onimage)
