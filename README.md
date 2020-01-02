@@ -1,5 +1,4 @@
 # Laravel Onimage
-
 [![Build Status](https://travis-ci.org/Konnco/laravel-onimage.svg?branch=master)](https://travis-ci.org/Konnco/laravel-onimage)
 [![Latest Stable Version](https://poser.pugx.org/konnco/laravel-onimage/v/stable)](https://packagist.org/packages/konnco/laravel-onimage)
 [![Total Downloads](https://poser.pugx.org/konnco/laravel-onimage/downloads)](https://packagist.org/packages/konnco/laravel-onimage)
@@ -166,8 +165,7 @@ You can insert these types into onimage field :
 * object - SplFileInfo instance (To handle Laravel file uploads via Symfony\Component\HttpFoundation\File\UploadedFile)
 
 ## Authors
-
-* **Franky So** - *Initial work* - [Konnco](https://github.com/konnco)
-
+[//]: contributor-faces
+<a href="https://github.com/frankyso"><img src="https://avatars.githubusercontent.com/u/5705520?v=3" title="frankyso" width="80" height="80"></a>
 ## Contributing
 we appreciate all contributions, feel free to write some code or request package.
