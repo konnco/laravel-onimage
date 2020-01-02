@@ -2,7 +2,6 @@
 
 namespace Konnco\Onimage;
 
-use function foo\func;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -28,7 +27,7 @@ trait Onimage
      */
     protected $onimage = [
         'attributes' => [],
-        'modified' => [],
+        'modified'   => [],
     ];
 
     /**
@@ -59,7 +58,7 @@ trait Onimage
     }
 
     /**
-     * Saving Image
+     * Saving Image.
      */
     private function onimageCreatedObserver()
     {
@@ -76,7 +75,7 @@ trait Onimage
     }
 
     /**
-     * Updating Image
+     * Updating Image.
      */
     private function onimageUpdatedObserver()
     {
@@ -135,14 +134,14 @@ trait Onimage
         $image->backup();
         $mimes = new MimeTypes();
         $fileExtension = $mimes->getExtension($image->mime());
-        $filename = Str::uuid() . '.' . $fileExtension;
+        $filename = Str::uuid().'.'.$fileExtension;
         $parent = null;
         foreach ($sizes as $size) {
-            $savePath = "images/$size/" . date('Y/m/d') . '/' . $filename;
+            $savePath = "images/$size/".date('Y/m/d').'/'.$filename;
             // Checking Configuration
-            $sizeCheck = config('onimage.sizes.' . $size, null);
+            $sizeCheck = config('onimage.sizes.'.$size, null);
             if ($sizeCheck == null) {
-                throw new \Exception($size . ' is not a valid image size');
+                throw new \Exception($size.' is not a valid image size');
             }
 
             $width = config("onimage.sizes.$size.0", null);
@@ -224,7 +223,7 @@ trait Onimage
             $defaultConfig['files'] = array_filter($defaultConfig['files'], 'strlen');
 
             if ($defaultConfig['nullable'] === false && count($defaultConfig['files']) == 0) {
-                throw new \Exception($key . ' attribute is null, define on your configuration nullable into your configuration.');
+                throw new \Exception($key.' attribute is null, define on your configuration nullable into your configuration.');
             }
 
             $this->onimage['modified'][$key] = $defaultConfig;
@@ -242,21 +241,21 @@ trait Onimage
     {
         $imageAttributes = $this->imageAttributes ?? [];
         if (array_key_exists($attribute, $imageAttributes) == false) {
-            throw new \Exception($attribute . ' Attribute not found');
+            throw new \Exception($attribute.' Attribute not found');
         }
 
         $driver = config('onimage.driver');
-        $url = config('filesystems.disks.' . $driver . '.url');
+        $url = config('filesystems.disks.'.$driver.'.url');
         $images = $this->onimagetable()->where('attribute', $attribute)->where('size', $size);
 
         $responseImage = [];
 
         if (strpos($this->imageAttributes[$attribute], 'multiple') !== false) {
             foreach ($images->get() as $image) {
-                $responseImage[$image->id] = $url . '/' . $image->path;
+                $responseImage[$image->id] = $url.'/'.$image->path;
             }
         } else {
-            $responseImage = $url . '/' . $images->first()->path;
+            $responseImage = $url.'/'.$images->first()->path;
         }
 
         return $responseImage;

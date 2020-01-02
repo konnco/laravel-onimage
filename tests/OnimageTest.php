@@ -29,7 +29,6 @@ class OnimageTest extends TestCase
         static::assertEquals(2, count($fruit->onimage('galleries')));
         static::assertEquals(2, count($fruit->onimage('galleries', 'square')));
 
-
         // test update
 //        dd($fruit->onimage('galleries'));
         $fruit = Fruit::find(1);
