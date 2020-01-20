@@ -154,7 +154,7 @@ trait Onimage
                 }, $position);
             }
 
-            Storage::disk(config('onimage.driver'))->put($savePath, $image->__toString());
+            Storage::disk(config('onimage.driver'))->put($savePath, (string) $image->encode());
 
             // save on databases
             $model = new OnimageModel();
