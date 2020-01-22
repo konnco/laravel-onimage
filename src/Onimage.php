@@ -39,22 +39,13 @@ trait Onimage
             $model->onimageSavingObserver();
         });
 
-        static::updated(function (Model $model) {
-            $model->onimageUpdatedObserver();
-        });
+        // static::updated(function (Model $model) {
+        //     $model->onimageUpdatedObserver();
+        // });
 
         static::created(function (Model $model) {
             $model->onimageCreatedObserver();
         });
-
-//        static::deleting(function (Model $model) {
-//            return $model->deleteTranslations();
-//        });
-//
-//        static::retrieved(function (Model $model) {
-//            $model->getTranslations();
-//            $model->getAvailableTranslations();
-//        });
     }
 
     /**
@@ -185,8 +176,6 @@ trait Onimage
      */
     private function onimageSavingObserver()
     {
-//        dd(Storage::disk(config('onimage.driver'))->deleteDirectory('images'));
-
         $attributes = collect($this->attributes);
         $imageAttributes = collect($this->imageAttributes ?? []);
 
@@ -220,13 +209,59 @@ trait Onimage
             }
 
             // removing empty file
-            $defaultConfig['files'] = array_filter($defaultConfig['files'], 'strlen');
+            $defaultConfig['files'] = array_filter($defaultConfig['files'] ?? [], 'strlen');
 
             if ($defaultConfig['nullable'] === false && count($defaultConfig['files']) == 0) {
                 throw new \Exception($key.' attribute is null, define on your configuration nullable into your configuration.');
             }
 
             $this->onimage['modified'][$key] = $defaultConfig;
+
+            foreach ($this->onimage['modified'] as $image) {
+                if (count($image['files']) === 0) {
+                    // it means this image type should delete all
+                    $this->onimagetable()->delete();
+                    continue;
+                }
+
+                // DELETE IMAGES THAT HAVE DIFFERENCE
+                $deleteImageState = collect($image['files'])->filter(function ($value) {
+                    return is_numeric($value);
+                });
+
+                if ($deleteImageState->count() > 0) {
+                    // this means there image that we should delete.
+                    // get image size
+                    $imagetable = $this->onimagetable()->find($deleteImageState->first());
+                    $imagesize = $imagetable->size;
+
+                    // find all image that same size with this;
+                    $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
+                        return $key;
+                    });
+
+                    $shouldDelete = $availableOnimage->diff($deleteImageState);
+                    $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
+                        if ($value->parent_id == null) {
+                            // delete all belows
+                            $this->onimagetable()->where('parent_id', $value->id)->delete();
+                            $value->delete();
+                        } else {
+                            $this->onimagetable()->where('id', $value->parent_id)->delete();
+                            $this->onimagetable()->where('parent_id', $value->parent_id)->delete();
+                        }
+                    });
+                }
+
+                // UPLOAD NEW IMAGES
+                collect($image['files'])->filter(function ($value) {
+                    return !is_numeric($value);
+                })->each(function ($value) use ($image) {
+                    $interventionImage = Image::make($value);
+                    $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
+                });
+            }
+
             $attributes = $attributes->forget($key);
         });
 
@@ -260,101 +295,4 @@ trait Onimage
 
         return $responseImage;
     }
-
-    /**
-     * Override parents functions to get single attributes.
-     *
-     * @param $key
-     *
-     * @return mixed
-     */
-//    public function getAttribute($key)
-//    {
-//        // checking attribute
-//        $imageAttributes = collect($this->imageAttributes ?? []);
-//        if ($imageAttributes->get($key, null) == null) {
-//            return parent::getAttribute($key);
-//        }
-//
-//        $images = $this->onimagetable()->where('attribute', $key);
-//
-//        $driver = config('onimage.driver');
-//        dd('filesystems.disks.'.$driver.".url");
-//        $url = config('filesystems.disks.'.$driver.".url");
-//        dd($url);
-//        $response = [];
-//
-//        // check if type is multiple
-//        if (strpos($this->imageAttributes[$key], "multiple")) {
-//            foreach ($images as $image) {
-//                $response[] = $image->path;
-//            }
-//        }
-
-//        $defaultLocale = $this->getDefaultLocale();
-//        $currentLocale = $this->getCurrentLocale();
-//
-//        if ($defaultLocale == $currentLocale) {
-//            return parent::getAttribute($key);
-//        } else {
-//            return @$this->transeloquent['attributes'][$key] ?? parent::getAttribute($key);
-//        }
-//    }
-
-    /**
-     * Saving Translation.
-     *
-     * @return bool
-     */
-    public function saveTranslations()
-    {
-        $defaultLocale = $this->getDefaultLocale();
-        $currentLocale = $this->getCurrentLocale();
-
-        if ($defaultLocale != $currentLocale) {
-            $attributes = isset($this->translateOnly) ? $this->getTranslateOnlyAttributes() : $this->getTranslateExcept();
-
-            foreach ($attributes as $key => $attribute) {
-                if ($attribute != null) {
-                    $translate = $this->transeloquent($this->getCurrentLocale())->where('key', $key)->first();
-                    if ($translate == null) {
-                        $transeloquentModel = $this->getTranseloquentModel();
-                        $translate = new $transeloquentModel();
-                    }
-                    $translate->locale = $this->getCurrentLocale();
-                    $translate->key = $key;
-                    $translate->value = $attribute;
-                    $translate->save();
-                    $this->transeloquent($this->getCurrentLocale())->save($translate);
-                }
-            }
-
-            $this->setRawTranslatedAttributes($attributes);
-            $this->setRawAttributes($this->getOriginal());
-        }
-
-        return true;
-    }
-
-    /**
-     * Delete Translation.
-     *
-     * @return mixed
-     */
-    public function deleteTranslations()
-    {
-        if (!$this->isSoftDelete()) {
-            return $this->transeloquent()->delete();
-        }
-    }
-
-    /*
-     * Checking Model is softdeleting or not.
-     *
-     * @return bool
-     */
-//    public function isSoftDelete()
-//    {
-//        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this)) && !$this->forceDeleting;
-//    }
 }
