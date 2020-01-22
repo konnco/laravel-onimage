@@ -35,6 +35,10 @@ trait Onimage
      */
     public static function bootOnimage(): void
     {
+        static::retrieved(function (Model $model) {
+            $model->onimageCreatedObserver();
+        });
+
         static::saving(function (Model $model) {
             $model->onimageSavingObserver();
         });
