@@ -35,13 +35,13 @@ trait Onimage
      */
     public static function bootOnimage(): void
     {
+        static::retrieved(function (Model $model) {
+            $model->onimageCreatedObserver();
+        });
+
         static::saving(function (Model $model) {
             $model->onimageSavingObserver();
         });
-
-        // static::updated(function (Model $model) {
-        //     $model->onimageUpdatedObserver();
-        // });
 
         static::created(function (Model $model) {
             $model->onimageCreatedObserver();
@@ -62,57 +62,6 @@ trait Onimage
                 $interventionImage = Image::make($file);
                 $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
             }
-        }
-    }
-
-    /**
-     * Updating Image.
-     */
-    private function onimageUpdatedObserver()
-    {
-        foreach ($this->onimage['modified'] as $image) {
-            if (count($image['files']) === 0) {
-                // it means this image type should delete all
-                $this->onimagetable()->delete();
-                continue;
-            }
-
-            // DELETE IMAGES THAT HAVE DIFFERENCE
-            $deleteImageState = collect($image['files'])->filter(function ($value) {
-                return is_numeric($value);
-            });
-
-            if ($deleteImageState->count() > 0) {
-                // this means there image that we should delete.
-                // get image size
-                $imagetable = $this->onimagetable()->find($deleteImageState->first());
-                $imagesize = $imagetable->size;
-
-                // find all image that same size with this;
-                $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
-                    return $key;
-                });
-
-                $shouldDelete = $availableOnimage->diff($deleteImageState);
-                $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
-                    if ($value->parent_id == null) {
-                        // delete all belows
-                        $this->onimagetable()->where('parent_id', $value->id)->delete();
-                        $value->delete();
-                    } else {
-                        $this->onimagetable()->where('id', $value->parent_id)->delete();
-                        $this->onimagetable()->where('parent_id', $value->parent_id)->delete();
-                    }
-                });
-            }
-
-            // UPLOAD NEW IMAGES
-            collect($image['files'])->filter(function ($value) {
-                return !is_numeric($value);
-            })->each(function ($value) use ($image) {
-                $interventionImage = Image::make($value);
-                $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
-            });
         }
     }
 
@@ -216,6 +165,8 @@ trait Onimage
             }
 
             $this->onimage['modified'][$key] = $defaultConfig;
+
+            // Update images
 
             foreach ($this->onimage['modified'] as $image) {
                 if (count($image['files']) === 0) {
