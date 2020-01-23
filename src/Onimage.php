@@ -83,7 +83,7 @@ trait Onimage
             if (count($image['files']) === 0) {
                 // it means this image type should delete all
                 // and it should multiple, if not just leave it
-                if($image['multiple']==true){
+                if ($image['multiple'] == true) {
                     $this->onimagetable()->delete();
                 }
                 continue;
@@ -248,7 +248,7 @@ trait Onimage
     public function getDirty()
     {
         $dirty = parent::getDirty();
-        if(count($dirty)==0){
+        if (count($dirty) == 0) {
             $key = array_keys($this->getAttributes())[0];
             $dirty[$key] = $this->getAttributes()[$key];
         }
@@ -279,7 +279,7 @@ trait Onimage
                 $responseImage[$image->id] = $url.'/'.$image->path;
             }
         } else {
-            if($images->first()==null){
+            if ($images->first() == null) {
                 $images = $this->onimagetable()->where('attribute', $attribute)->where('size', 'original');
                 $storageImage = Storage::disk(config('onimage.driver'))->get($images->first()->path);
                 $interventionImage = Image::make($storageImage);
