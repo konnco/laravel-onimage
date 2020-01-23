@@ -94,7 +94,11 @@ trait Onimage
                 return is_numeric($value);
             });
 
-            if ($deleteImageState->count() > 0) {
+            if($image['multiple']==false){
+                $key = $this->onimage($image['attribute'], 'original', true);
+
+                $this->onimagetable()->find(array_keys($key)[0])->delete();
+            } elseif ($deleteImageState->count() > 0 && $image['multiple'] == true) {
                 // this means there image that we should delete.
                 // get image size
                 $imagetable = $this->onimagetable()->find($deleteImageState->first());
@@ -104,7 +108,7 @@ trait Onimage
                 $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
                     return $key;
                 });
-
+                
                 $shouldDelete = $availableOnimage->diff($deleteImageState);
                 $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
                     if ($value->parent_id == null) {
@@ -256,9 +260,9 @@ trait Onimage
      * @param $attribute string field attribute
      * @param $size string default original
      */
-    public function onimage($attribute, $size = 'original')
+    public function onimage($attribute, $size = 'original', $forceArray=false)
     {
-        // restartFetch:
+        restartFetch:
         $imageAttributes = $this->imageAttributes ?? [];
         if (array_key_exists($attribute, $imageAttributes) == false) {
             throw new \Exception($attribute.' Attribute not found');
@@ -280,10 +284,13 @@ trait Onimage
                 $storageImage = Storage::disk(config('onimage.driver'))->get($images->first()->path);
                 $interventionImage = Image::make($storageImage);
                 $this->onimageSave($attribute, $interventionImage, [$size]);
-                dd("error");
-                // goto restartFetch;
+                goto restartFetch;
             } else {
-                $responseImage = $url.'/'.$images->first()->path;
+                if($forceArray){
+                    $responseImage = [$images->last()->id => $url.'/'.$images->last()->path];
+                }else{
+                    $responseImage = $url.'/'.$images->orderBy('id','DESC')->first()->path;
+                }
             }
         }
 
