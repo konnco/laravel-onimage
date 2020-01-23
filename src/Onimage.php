@@ -225,6 +225,8 @@ trait Onimage
      */
     public function onimage($attribute, $size = 'original')
     {
+        restartFetch:
+
         $imageAttributes = $this->imageAttributes ?? [];
         if (array_key_exists($attribute, $imageAttributes) == false) {
             throw new \Exception($attribute.' Attribute not found');
@@ -241,7 +243,16 @@ trait Onimage
                 $responseImage[$image->id] = $url.'/'.$image->path;
             }
         } else {
-            $responseImage = $url.'/'.$images->first()->path;
+            if($images->first()==null){
+                // Start Resize
+                $images = $this->onimagetable()->where('attribute', $attribute)->where('size', 'original');
+                $storageImage = Storage::disk(config('onimage.driver'))->get($images->first()->path);
+                $interventionImage = Image::make($storageImage);
+                $this->onimageSave($attribute, $interventionImage, [$size]);
+                goto restartFetch;
+            } else {
+                $responseImage = $url.'/'.$images->first()->path;
+            }
         }
 
         return $responseImage;
