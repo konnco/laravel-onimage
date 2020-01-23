@@ -35,17 +35,26 @@ trait Onimage
      */
     public static function bootOnimage(): void
     {
-        static::retrieved(function (Model $model) {
-            $model->onimageCreatedObserver();
-        });
-
         static::saving(function (Model $model) {
             $model->onimageSavingObserver();
+        });
+
+        static::updated(function (Model $model) {
+            $model->onimageUpdatedObserver();
         });
 
         static::created(function (Model $model) {
             $model->onimageCreatedObserver();
         });
+
+//        static::deleting(function (Model $model) {
+//            return $model->deleteTranslations();
+//        });
+//
+//        static::retrieved(function (Model $model) {
+//            $model->getTranslations();
+//            $model->getAvailableTranslations();
+//        });
     }
 
     /**
@@ -62,6 +71,60 @@ trait Onimage
                 $interventionImage = Image::make($file);
                 $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
             }
+        }
+    }
+
+    /**
+     * Updating Image.
+     */
+    private function onimageUpdatedObserver()
+    {
+        foreach ($this->onimage['modified'] as $image) {
+            if (count($image['files']) === 0) {
+                // it means this image type should delete all
+                // and it should multiple, if not just leave it
+                if($image['multiple']==true){
+                    $this->onimagetable()->delete();
+                }
+                continue;
+            }
+
+            // DELETE IMAGES THAT HAVE DIFFERENCE
+            $deleteImageState = collect($image['files'])->filter(function ($value) {
+                return is_numeric($value);
+            });
+
+            if ($deleteImageState->count() > 0) {
+                // this means there image that we should delete.
+                // get image size
+                $imagetable = $this->onimagetable()->find($deleteImageState->first());
+                $imagesize = $imagetable->size;
+
+                // find all image that same size with this;
+                $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
+                    return $key;
+                });
+
+                $shouldDelete = $availableOnimage->diff($deleteImageState);
+                $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
+                    if ($value->parent_id == null) {
+                        // delete all belows
+                        $this->onimagetable()->where('parent_id', $value->id)->delete();
+                        $value->delete();
+                    } else {
+                        $this->onimagetable()->where('id', $value->parent_id)->delete();
+                        $this->onimagetable()->where('parent_id', $value->parent_id)->delete();
+                    }
+                });
+            }
+
+            // UPLOAD NEW IMAGES
+            collect($image['files'])->filter(function ($value) {
+                return !is_numeric($value);
+            })->each(function ($value) use ($image) {
+                $interventionImage = Image::make($value);
+                $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
+            });
         }
     }
 
@@ -125,6 +188,8 @@ trait Onimage
      */
     private function onimageSavingObserver()
     {
+//        dd(Storage::disk(config('onimage.driver'))->deleteDirectory('images'));
+
         $attributes = collect($this->attributes);
         $imageAttributes = collect($this->imageAttributes ?? []);
 
@@ -158,65 +223,33 @@ trait Onimage
             }
 
             // removing empty file
-            $defaultConfig['files'] = array_filter($defaultConfig['files'] ?? [], 'strlen');
+            $defaultConfig['files'] = array_filter($defaultConfig['files'], 'strlen');
 
             if ($defaultConfig['nullable'] === false && count($defaultConfig['files']) == 0) {
                 throw new \Exception($key.' attribute is null, define on your configuration nullable into your configuration.');
             }
 
             $this->onimage['modified'][$key] = $defaultConfig;
-
-            // Update images
-
-            foreach ($this->onimage['modified'] as $image) {
-                if (count($image['files']) === 0) {
-                    // it means this image type should delete all
-                    $this->onimagetable()->delete();
-                    continue;
-                }
-
-                // DELETE IMAGES THAT HAVE DIFFERENCE
-                $deleteImageState = collect($image['files'])->filter(function ($value) {
-                    return is_numeric($value);
-                });
-
-                if ($deleteImageState->count() > 0) {
-                    // this means there image that we should delete.
-                    // get image size
-                    $imagetable = $this->onimagetable()->find($deleteImageState->first());
-                    $imagesize = $imagetable->size;
-
-                    // find all image that same size with this;
-                    $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
-                        return $key;
-                    });
-
-                    $shouldDelete = $availableOnimage->diff($deleteImageState);
-                    $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
-                        if ($value->parent_id == null) {
-                            // delete all belows
-                            $this->onimagetable()->where('parent_id', $value->id)->delete();
-                            $value->delete();
-                        } else {
-                            $this->onimagetable()->where('id', $value->parent_id)->delete();
-                            $this->onimagetable()->where('parent_id', $value->parent_id)->delete();
-                        }
-                    });
-                }
-
-                // UPLOAD NEW IMAGES
-                collect($image['files'])->filter(function ($value) {
-                    return !is_numeric($value);
-                })->each(function ($value) use ($image) {
-                    $interventionImage = Image::make($value);
-                    $this->onimageSave($image['attribute'], $interventionImage, $image['size']);
-                });
-            }
-
             $attributes = $attributes->forget($key);
         });
 
         $this->attributes = $attributes->toArray();
+    }
+
+    /**
+     * Get the attributes that have been changed since last sync.
+     *
+     * @return array
+     */
+    public function getDirty()
+    {
+        $dirty = parent::getDirty();
+        if(count($dirty)==0){
+            $key = array_keys($this->getAttributes())[0];
+            $dirty[$key] = $this->getAttributes()[$key];
+        }
+
+        return $dirty;
     }
 
     /**
@@ -225,8 +258,7 @@ trait Onimage
      */
     public function onimage($attribute, $size = 'original')
     {
-        restartFetch:
-
+        // restartFetch:
         $imageAttributes = $this->imageAttributes ?? [];
         if (array_key_exists($attribute, $imageAttributes) == false) {
             throw new \Exception($attribute.' Attribute not found');
@@ -244,12 +276,12 @@ trait Onimage
             }
         } else {
             if($images->first()==null){
-                // Start Resize
                 $images = $this->onimagetable()->where('attribute', $attribute)->where('size', 'original');
                 $storageImage = Storage::disk(config('onimage.driver'))->get($images->first()->path);
                 $interventionImage = Image::make($storageImage);
                 $this->onimageSave($attribute, $interventionImage, [$size]);
-                goto restartFetch;
+                dd("error");
+                // goto restartFetch;
             } else {
                 $responseImage = $url.'/'.$images->first()->path;
             }
@@ -257,4 +289,26 @@ trait Onimage
 
         return $responseImage;
     }
+
+    /**
+     * Delete Translation.
+     *
+     * @return mixed
+     */
+    public function deleteTranslations()
+    {
+        if (!$this->isSoftDelete()) {
+            return $this->transeloquent()->delete();
+        }
+    }
+
+    /*
+     * Checking Model is softdeleting or not.
+     *
+     * @return bool
+     */
+//    public function isSoftDelete()
+//    {
+//        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this)) && !$this->forceDeleting;
+//    }
 }
