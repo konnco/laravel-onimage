@@ -94,7 +94,7 @@ trait Onimage
                 return is_numeric($value);
             });
 
-            if($image['multiple']==false){
+            if ($image['multiple'] == false) {
                 $key = $this->onimage($image['attribute'], 'original', true);
 
                 $this->onimagetable()->find(array_keys($key)[0])->delete();
@@ -108,7 +108,7 @@ trait Onimage
                 $availableOnimage = collect($this->onimage($image['attribute'], $imagesize))->map(function ($value, $key) {
                     return $key;
                 });
-                
+
                 $shouldDelete = $availableOnimage->diff($deleteImageState);
                 $this->onimagetable()->find($shouldDelete->all())->each(function ($value) {
                     if ($value->parent_id == null) {
@@ -260,7 +260,7 @@ trait Onimage
      * @param $attribute string field attribute
      * @param $size string default original
      */
-    public function onimage($attribute, $size = 'original', $forceArray=false)
+    public function onimage($attribute, $size = 'original', $forceArray = false)
     {
         restartFetch:
         $imageAttributes = $this->imageAttributes ?? [];
@@ -286,10 +286,10 @@ trait Onimage
                 $this->onimageSave($attribute, $interventionImage, [$size]);
                 goto restartFetch;
             } else {
-                if($forceArray){
+                if ($forceArray) {
                     $responseImage = [$images->last()->id => $url.'/'.$images->last()->path];
-                }else{
-                    $responseImage = $url.'/'.$images->orderBy('id','DESC')->first()->path;
+                } else {
+                    $responseImage = $url.'/'.$images->orderBy('id', 'DESC')->first()->path;
                 }
             }
         }
