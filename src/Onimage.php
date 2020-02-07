@@ -46,15 +46,6 @@ trait Onimage
         static::created(function (Model $model) {
             $model->onimageCreatedObserver();
         });
-
-//        static::deleting(function (Model $model) {
-//            return $model->deleteTranslations();
-//        });
-//
-//        static::retrieved(function (Model $model) {
-//            $model->getTranslations();
-//            $model->getAvailableTranslations();
-//        });
     }
 
     /**
@@ -295,18 +286,6 @@ trait Onimage
         }
 
         return $responseImage;
-    }
-
-    /**
-     * Delete Translation.
-     *
-     * @return mixed
-     */
-    public function deleteTranslations()
-    {
-        if (!$this->isSoftDelete()) {
-            return $this->transeloquent()->delete();
-        }
     }
 
     /*
