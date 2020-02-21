@@ -2,6 +2,7 @@
 
 namespace Konnco\Onimage;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -132,14 +133,14 @@ trait Onimage
         $image->backup();
         $mimes = new MimeTypes();
         $fileExtension = $mimes->getExtension($image->mime());
-        $filename = Str::uuid().'.'.$fileExtension;
+        $filename = Str::uuid() . '.' . $fileExtension;
         $parent = null;
         foreach ($sizes as $size) {
-            $savePath = "images/$size/".date('Y/m/d').'/'.$filename;
+            $savePath = "images/$size/" . date('Y/m/d') . '/' . $filename;
             // Checking Configuration
-            $sizeCheck = config('onimage.sizes.'.$size, null);
+            $sizeCheck = config('onimage.sizes.' . $size, null);
             if ($sizeCheck == null) {
-                throw new \Exception($size.' is not a valid image size');
+                throw new \Exception($size . ' is not a valid image size');
             }
 
             $width = config("onimage.sizes.$size.0", null);
@@ -183,7 +184,7 @@ trait Onimage
      */
     private function onimageSavingObserver()
     {
-//        dd(Storage::disk(config('onimage.driver'))->deleteDirectory('images'));
+        //        dd(Storage::disk(config('onimage.driver'))->deleteDirectory('images'));
 
         $attributes = collect($this->attributes);
         $imageAttributes = collect($this->imageAttributes ?? []);
@@ -221,7 +222,7 @@ trait Onimage
             $defaultConfig['files'] = array_filter($defaultConfig['files'], 'strlen');
 
             if ($defaultConfig['nullable'] === false && count($defaultConfig['files']) == 0) {
-                throw new \Exception($key.' attribute is null, define on your configuration nullable into your configuration.');
+                throw new \Exception($key . ' attribute is null, define on your configuration nullable into your configuration.');
             }
 
             $this->onimage['modified'][$key] = $defaultConfig;
@@ -253,34 +254,43 @@ trait Onimage
      */
     public function onimage($attribute, $size = 'original', $forceArray = false)
     {
-        restartFetch:
-        $imageAttributes = $this->imageAttributes ?? [];
+        restartFetch: $imageAttributes = $this->imageAttributes ?? [];
         if (array_key_exists($attribute, $imageAttributes) == false) {
-            throw new \Exception($attribute.' Attribute not found');
+            throw new \Exception($attribute . ' Attribute not found');
         }
 
         $driver = config('onimage.driver');
-        $url = config('filesystems.disks.'.$driver.'.url');
+        $url = config('filesystems.disks.' . $driver . '.url');
         $images = $this->onimagetable()->where('attribute', $attribute)->where('size', $size);
 
         $responseImage = [];
 
         if (strpos($this->imageAttributes[$attribute], 'multiple') !== false) {
             foreach ($images->get() as $image) {
-                $responseImage[$image->id] = $url.'/'.$image->path;
+                $responseImage[$image->id] = $url . '/' . $image->path;
             }
         } else {
             if ($images->first() == null) {
-                $images = $this->onimagetable()->where('attribute', $attribute)->where('size', 'original');
-                $storageImage = Storage::disk(config('onimage.driver'))->get($images->first()->path);
-                $interventionImage = Image::make($storageImage);
-                $this->onimageSave($attribute, $interventionImage, [$size]);
-                goto restartFetch;
+                try {
+                    $images = $this->onimagetable()->where('attribute', $attribute)->where('size', 'original');
+                    $storageImage = Storage::disk(config('onimage.driver'))->get($images->first()->path);
+                    $interventionImage = Image::make($storageImage);
+                    $this->onimageSave($attribute, $interventionImage, [$size]);
+                    goto restartFetch;
+                } catch (Exception $e) {
+                    if ($forceArray) {
+                        $responseImage = [];
+                    } else {
+                        $responseImage = null;
+                    }
+
+                    return $responseImage;
+                }
             } else {
                 if ($forceArray) {
-                    $responseImage = [$images->last()->id => $url.'/'.$images->last()->path];
+                    $responseImage = [$images->last()->id => $url . '/' . $images->last()->path];
                 } else {
-                    $responseImage = $url.'/'.$images->orderBy('id', 'DESC')->first()->path;
+                    $responseImage = $url . '/' . $images->orderBy('id', 'DESC')->first()->path;
                 }
             }
         }
@@ -293,8 +303,8 @@ trait Onimage
      *
      * @return bool
      */
-//    public function isSoftDelete()
-//    {
-//        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this)) && !$this->forceDeleting;
-//    }
+    //    public function isSoftDelete()
+    //    {
+    //        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this)) && !$this->forceDeleting;
+    //    }
 }
