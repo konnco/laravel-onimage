@@ -88,8 +88,9 @@ trait Onimage
 
             if ($image['multiple'] == false) {
                 $key = $this->onimage($image['attribute'], 'original', true);
-
-                $this->onimagetable()->find(array_keys($key)[0])->delete();
+                if (count(array_keys($key)) > 0) {
+                    $this->onimagetable()->find(array_keys($key)[0])->delete();
+                }
             } elseif ($deleteImageState->count() > 0 && $image['multiple'] == true) {
                 // this means there image that we should delete.
                 // get image size
@@ -287,10 +288,18 @@ trait Onimage
                     return $responseImage;
                 }
             } else {
-                if ($forceArray) {
-                    $responseImage = [$images->last()->id => $url . '/' . $images->last()->path];
-                } else {
-                    $responseImage = $url . '/' . $images->orderBy('id', 'DESC')->first()->path;
+                try {
+                    if ($forceArray) {
+                        $responseImage = [$images->last()->id => $url . '/' . $images->last()->path];
+                    } else {
+                        $responseImage = $url . '/' . $images->orderBy('id', 'DESC')->first()->path;
+                    }
+                } catch (Exception $e) {
+                    if ($forceArray) {
+                        $responseImage = [];
+                    } else {
+                        $responseImage = null;
+                    }
                 }
             }
         }
