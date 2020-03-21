@@ -22,11 +22,8 @@ class CreateOnimagesTable extends Migration
         Schema::create('onimages', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('attribute');
-            $table->string('size');
-            $table->text('path');
-            $table->integer('width');
-            $table->integer('height');
-            $table->bigInteger('parent_id')->nullable();
+            $table->text('path')->comment('Current filesystems drivers when adding this picture');
+            $table->string('driver')->comment('Current filesystems drivers when adding this picture');
             $table->nullableMorphs('onimagetable');
             $table->timestamps();
         });

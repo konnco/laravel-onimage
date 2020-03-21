@@ -37,4 +37,13 @@ return [
     'sizes' => [
         'original' => [null, null],
     ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image size cache lifetimes
+    |--------------------------------------------------------------------------
+    | how long image size will be served in minutes
+    */
+    'cache_lifetime' => '60'
 ];
