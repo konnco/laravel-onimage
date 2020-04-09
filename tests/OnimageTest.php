@@ -111,13 +111,4 @@ class OnimageTest extends TestCase
 
         static::assertEquals(false, $fruit->onImageHas('galleries'));
     }
-
-    /** @test */
-    public function testGenerateUrl(): void
-    {
-        $fruit = $this->testMultipleUpload();
-        dd($fruit->onImageFirst('galleries')->url(300, 300));
-
-        static::assertEquals(false, $fruit->onImageHas('galleries'));
-    }
 }
