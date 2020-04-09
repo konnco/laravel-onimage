@@ -23,6 +23,7 @@ class OnImageController extends Controller
                 $constraint->upsize();
             });
         }, config('konnco.cache_lifetime'), true);
+
         return $img->stream();
     }
 }
