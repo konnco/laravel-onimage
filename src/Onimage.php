@@ -23,6 +23,16 @@ trait Onimage
     }
 
     /**
+     * Onimage filesystem drivers
+     *
+     * @return void
+     */
+    private function onImageStorage()
+    {
+        return Storage::disk(config('onimage.driver'));
+    }
+
+    /**
      * Attaching Image
      *
      * Attach image to a model with the setOnImage() method. Accepted Image type :
@@ -43,7 +53,7 @@ trait Onimage
      * 
      * @return void
      */
-    public function setOnImage($attribute, $image, $stack = false)
+    public function onImageSet($attribute, $images = [], $stack = false)
     {
         /*
         |------------------------------------------------------------------------
@@ -55,35 +65,55 @@ trait Onimage
         | 4. save it into OnImageModel
         */
 
-        // Step 1  
-        $image = Image::make($image);
-
-        // Step 2
-        $mimes = new MimeTypes();
-        $fileExtension = $mimes->getExtension($image->mime());
-        $filename = Str::uuid() . '.' . $fileExtension;
-        $savePath = "onimages/" . date('Y-m-d') . '/' . $filename;
-
-        // Step 3
-        Storage::disk(config('onimage.driver'))->put($savePath, (string) $image->encode());
-
-        // Step 4
-        if ($stack) {
-            $model = $this->onimagetable()->find($attribute);
-            if ($model == null) {
-                $model = new OnimageModel();
-            }
+        /**
+         * Determine images input is array or string
+         */
+        if (!is_array($images)) {
+            $images = [$images];
         } else {
-            $model = new OnimageModel();
+            // if images is array we have to force stacks 
+            // and we have to clear up the old images maybe later
+            $stack = true;
+            // $this->delete
         }
 
-        $model->attribute = $attribute;
-        $model->path = $savePath;
-        $model->width = $image->width();
-        $model->height = $image->height();
-        $model->save();
+        foreach ($images as $image) {
+            // Step 1  
+            $image = Image::make($image);
 
-        $this->onimagetable()->save($model);
+            // Step 2
+            $mimes = new MimeTypes();
+            $fileExtension = $mimes->getExtension($image->mime());
+            $filename = Str::uuid() . '.' . $fileExtension;
+            $savePath = "onimages/" . date('Y-m-d') . '/' . $filename;
+
+            // Step 3
+            $this->onImageStorage()->put($savePath, (string) $image->encode());
+
+            // Step 4
+            if ($stack) {
+                $model = $this->onimagetable()->find($attribute);
+                if ($model == null) {
+                    $model = new OnimageModel();
+                }
+            } else {
+                $model = new OnimageModel();
+            }
+
+            $model->attribute = $attribute;
+            $model->path = $savePath;
+            $model->name = $filename;
+            $model->mime = $image->mime();
+            $model->size = $this->onImageStorage()->size($savePath);
+            $model->width = $image->width();
+            $model->height = $image->height();
+            $model->driver = config('onimage.driver');
+            $model->save();
+
+            $this->onimagetable()->save($model);
+        }
+
+        return $this->onImageGet($attribute);
     }
 
     /**
@@ -93,21 +123,31 @@ trait Onimage
      * @param [type] $image
      * @return void
      */
-    public function pushOnImage($attribute, $image)
+    public function onImagePush($attribute, $image)
     {
-        return $this->setOnImage($attribute, $image, true);
+        return $this->onImageSet($attribute, $image, true);
     }
 
     /**
      * Get onImage based on galleries
      *
      * @param [type] $attribute
-     * @param [type] $size
-     * @return void
+     * @return Konnco\Onimage\models\Onimage
      */
-    public function getOnImage($attribute, $size)
+    public function onImageGet($attribute)
     {
         return $this->onimagetable()->where('attribute', $attribute)->get();
+    }
+
+    /**
+     * get first onimage attribute
+     *
+     * @param [type] $attribute
+     * @return boolean
+     */
+    public function onImageFirst($attribute)
+    {
+        return $this->onImageGet($attribute)->first();
     }
 
     /**
@@ -116,37 +156,35 @@ trait Onimage
      * @param [type] $attribute
      * @return boolean
      */
-    public function hasOnImage($attribute)
+    public function onImageHas($attribute)
     {
         return ($this->onimagetable()->where('attribute', $attribute)->count() > 0);
     }
 
     /**
-     * Replacing onimage image
-     */
-    public function replaceOnImage($attribute, $replacedImage, $image)
-    {
-
-    }
-
-    /**
-     * Remove OnImage Image
+     * Delete finded attribute with id
      *
      * @param [type] $attribute
-     * @return void
+     * @return boolean
      */
-    public function removeOnImage($attribute)
+    public function onImageDelete($attribute, $id)
     {
+        if (!is_array($id)) {
+            $id = [$id];
+        }
 
+        $model = $this->onimagetable()->where('attribute', $attribute)->whereIn('id', $id);
+        return $model->delete();
     }
 
     /**
-     * Remove all image
+     * Delete finded attribute with id
      *
-     * @return void
+     * @param [type] $attribute
+     * @return boolean
      */
-    public function purgeOnImage()
+    public function onImageClear($attribute)
     {
-        return $this->onimagetable()->delete();
+        return $this->onimagetable()->where('attribute', $attribute)->delete();
     }
 }

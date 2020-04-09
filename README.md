@@ -10,8 +10,6 @@ This package is designed to boost up your developing time in managing your image
 
 This package based on the famous [Intervention/Image](http://image.intervention.io)
 
-***This package is still in alpha version, so the update may broke your application.***
-
 ## Installation
 ```php
 composer require composer require konnco/laravel-onimage
@@ -28,45 +26,8 @@ php artisan migrate
 ## Configuration
 you can find onimage configuration here. `config/onimage.php`
 
-```php
-    /*
-    |--------------------------------------------------------------------------
-    | Image Upload Drivers
-    |--------------------------------------------------------------------------
-    |
-    | define driver you should use to upload your image.
-    |
-    */
 
-    'driver' => 'public',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Available image sizes
-    |--------------------------------------------------------------------------
-    |
-    | define driver you should use to upload your image.
-    |
-    | size example original :
-    | * width
-    | * height
-    | * position
-    |       * top-left
-    |       * top
-    |       * top-right
-    |       * left
-    |       * center (default)
-    |       * right
-    |       * bottom-left
-    |       * bottom
-    |       * bottom-right
-    |
-    */
-    'sizes' => [
-        'original' => [null, null],
-        'more-size' => [width, height, position]
-    ],
-```
+## Usage
 
 Add onimage traits into your model
 
@@ -81,76 +42,68 @@ class News extends Model {
 }
 ```
 
-and then define your field for images.
-
-in this package we separate our image type into 2 section
-* single (usually used for featured image)
-* multiple (usually used for gallery image)
-
-in your model define protected field named `protected $imageAttributes` following example below :
-```php
-namespace App;
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Konnco\Onimage\Onimage;
-
-class News extends Model {
-    use Onimage;
-    
-    protected $imageAttributes = [
-                                    'cover'     => '',
-                                    'galleries' => 'multiple|sizes:original,square|nullable',
-                                 ];
-}
-```
-
-Available Rules :
-1. `multiple` these is used to define multiple image into field.
-2. `sizes:configsize1,configsize2` these is used to define current field is going to resize into config size that you define in `config/onimage.php`.
-3. `nullable` these is used to define image field can be nulled.
-
 ## Quick Example
-### Upload your image
+### Uploading Image
 ```php
-$fruit = Fruit::find(1);
-$fruit->cover = 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80';
-$fruit->galleries = [
+$news = News::find(1);
+$news->onImageSet('featured', 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80');
+
+// Or for new instance
+$news = new News;
+$news->title = "hello world";
+$news->save();
+
+$news->onImageSet('featured', 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80');
+
+// You can pass an array too
+$news->onImageSet('featured', [
     'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
     'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
-];
-$fruit->save();
+    'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80'
+]);
 ```
 
-and its all done, all your image will resize based on your configuration.
-
-
-### Update Image
+### Multiple Image
 ```php
-$fruit = new Fruit();
-$fruit->name = 'banana';
-$fruit->cover = 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80';
-$fruit->galleries = [
-    '1', // image id
-    '2', // image id
+
+// Pushing into existing attribute
+$news = News::find(1);
+$news->onImagePush('featured', 'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80');
+
+// You can insert it as an array too
+$news->onImagePush('featured', [
     'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
     'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80',
-];
-$fruit->save();
+    'https://images.unsplash.com/photo-1562887250-9a52d844ad30?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2089&q=80']);
 ```
 
-all image id that you not returned back, will be deleted. 
-
-
-### Delete Image
+### Checking is attribute available
 ```php
-$fruit = new Fruit();
-$fruit->name = 'banana';
-$fruit->galleries = []; //just set it into empty array, and all image will be cleared.
-$fruit->save();
+$news = News::find(1);
+$news->onImageHas('featured');
 ```
 
-_you cannot delete Single image or set it into empty.
+### Getting single image
+```php
+$news = News::find(1);
+$news->onImageFirst('featured', 1);
+```
+
+### Getting image collections
+```php
+$news = News::find(1);
+$news->onImageGet('featured');
+```
+
+### Deleting Image
+```php
+$news = News::find(1);
+$news->onImageDelete('featured', 1);
+
+// Or delete batch
+$news->onImageDelete('featured', [1, 2, 3]);
+```
+
 
 ## Upload Type
 You can insert these types into onimage field :
