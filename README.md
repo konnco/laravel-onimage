@@ -1,10 +1,10 @@
 # Laravel Onimage
-[![Build Status](https://travis-ci.org/Konnco/laravel-onimage.svg?branch=master)](https://travis-ci.org/Konnco/laravel-onimage)
+[![Build Status](https://travis-ci.org/Konnco/laravel-onimage.svg?branch=v2)](https://travis-ci.org/Konnco/laravel-onimage)
 [![Latest Stable Version](https://poser.pugx.org/konnco/laravel-onimage/v/stable)](https://packagist.org/packages/konnco/laravel-onimage)
 [![Total Downloads](https://poser.pugx.org/konnco/laravel-onimage/downloads)](https://packagist.org/packages/konnco/laravel-onimage)
 [![Latest Unstable Version](https://poser.pugx.org/konnco/laravel-onimage/v/unstable)](https://packagist.org/packages/konnco/laravel-onimage)
 [![License](https://poser.pugx.org/konnco/laravel-onimage/license)](https://packagist.org/packages/konnco/laravel-onimage)
-[![StyleCI](https://github.styleci.io/repos/228747586/shield?branch=master)](https://github.styleci.io/repos/228747586)
+[![StyleCI](https://github.styleci.io/repos/228747586/shield?branch=v2)](https://github.styleci.io/repos/228747586)
 
 This package is designed to boost up your developing time in managing your image in Laravel framework.
 
