@@ -54,7 +54,7 @@ class OnimageTest extends TestCase
         $fruit->onImagePush('featured', [
             'https://images.unsplash.com/photo-1586132415792-380e8a1ee736?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
             'https://images.unsplash.com/photo-1586132415792-380e8a1ee736?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
-            'https://images.unsplash.com/photo-1586132415792-380e8a1ee736?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80'
+            'https://images.unsplash.com/photo-1586132415792-380e8a1ee736?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
         ]);
         static::assertEquals(4, $fruit->onImageGet('featured')->count());
     }

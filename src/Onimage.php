@@ -2,7 +2,6 @@
 
 namespace Konnco\Onimage;
 
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -23,7 +22,7 @@ trait Onimage
     }
 
     /**
-     * Onimage filesystem drivers
+     * Onimage filesystem drivers.
      *
      * @return void
      */
@@ -33,10 +32,10 @@ trait Onimage
     }
 
     /**
-     * Attaching Image
+     * Attaching Image.
      *
      * Attach image to a model with the setOnImage() method. Accepted Image type :
-     * 
+     *
      * - string - Path of the image in filesystem.
      * - string - URL of an image (allow_url_fopen must be enabled).
      * - string - Binary image data.
@@ -46,11 +45,11 @@ trait Onimage
      * - object - Imagick instance (when using Imagick driver)
      * - object - Intervention\Image\Image instance
      * - object - SplFileInfo instance (To handle Laravel file uploads via Symfony\Component\HttpFoundation\File\UploadedFile)
-     * 
+     *
      * @param string $attribute attribute field key
-     * @param mixed $image Intervention Image
-     * @param boolean $stack If stacking setOnimage will be pushed as array
-     * 
+     * @param mixed  $image     Intervention Image
+     * @param bool   $stack     If stacking setOnimage will be pushed as array
+     *
      * @return void
      */
     public function onImageSet($attribute, $images = [], $stack = false)
@@ -66,26 +65,26 @@ trait Onimage
         */
 
         /**
-         * Determine images input is array or string
+         * Determine images input is array or string.
          */
         if (!is_array($images)) {
             $images = [$images];
         } else {
-            // if images is array we have to force stacks 
+            // if images is array we have to force stacks
             // and we have to clear up the old images maybe later
             $stack = true;
             // $this->delete
         }
 
         foreach ($images as $image) {
-            // Step 1  
+            // Step 1
             $image = Image::make($image);
 
             // Step 2
             $mimes = new MimeTypes();
             $fileExtension = $mimes->getExtension($image->mime());
-            $filename = Str::uuid() . '.' . $fileExtension;
-            $savePath = "onimages/" . date('Y-m-d') . '/' . $filename;
+            $filename = Str::uuid().'.'.$fileExtension;
+            $savePath = 'onimages/'.date('Y-m-d').'/'.$filename;
 
             // Step 3
             $this->onImageStorage()->put($savePath, (string) $image->encode());
@@ -117,10 +116,11 @@ trait Onimage
     }
 
     /**
-     * Push image into array attributes
+     * Push image into array attributes.
      *
      * @param [type] $attribute
      * @param [type] $image
+     *
      * @return void
      */
     public function onImagePush($attribute, $image)
@@ -129,9 +129,10 @@ trait Onimage
     }
 
     /**
-     * Get onImage based on galleries
+     * Get onImage based on galleries.
      *
      * @param [type] $attribute
+     *
      * @return Konnco\Onimage\models\Onimage
      */
     public function onImageGet($attribute)
@@ -140,10 +141,11 @@ trait Onimage
     }
 
     /**
-     * get first onimage attribute
+     * get first onimage attribute.
      *
      * @param [type] $attribute
-     * @return boolean
+     *
+     * @return bool
      */
     public function onImageFirst($attribute)
     {
@@ -151,21 +153,23 @@ trait Onimage
     }
 
     /**
-     * Check if attribute available
+     * Check if attribute available.
      *
      * @param [type] $attribute
-     * @return boolean
+     *
+     * @return bool
      */
     public function onImageHas($attribute)
     {
-        return ($this->onimagetable()->where('attribute', $attribute)->count() > 0);
+        return $this->onimagetable()->where('attribute', $attribute)->count() > 0;
     }
 
     /**
-     * Delete finded attribute with id
+     * Delete finded attribute with id.
      *
      * @param [type] $attribute
-     * @return boolean
+     *
+     * @return bool
      */
     public function onImageDelete($attribute, $id)
     {
@@ -174,14 +178,16 @@ trait Onimage
         }
 
         $model = $this->onimagetable()->where('attribute', $attribute)->whereIn('id', $id);
+
         return $model->delete();
     }
 
     /**
-     * Delete finded attribute with id
+     * Delete finded attribute with id.
      *
      * @param [type] $attribute
-     * @return boolean
+     *
+     * @return bool
      */
     public function onImageClear($attribute)
     {
