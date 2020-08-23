@@ -14,8 +14,18 @@ class Onimage extends Model
         return $this->morphTo();
     }
 
-    public function url($width, $height)
+    public function url($width=null, $height=null)
     {
-        return url("/oc/media/{$width}/{$height}/{$this->name}");
+        if($width){
+            $width = "width=".$width;
+        }
+
+        if($height){
+            $height = "height=".$width;
+        }
+
+        $query = [];
+
+        return url("/oc/media/{$this->name}?".implode("&",$query));
     }
 }

@@ -10,11 +10,19 @@ use Konnco\Onimage\models\Onimage;
 
 class OnImageController extends Controller
 {
-    public function onImageCache($width, $height, $filename)
+    public function onImageCache($filename)
     {
         $model = Onimage::where('name', $filename)->first();
         if ($model == null) {
             abort(404);
+        }
+
+        $width = request()->get('width', null);
+        $height = request()->get('height', null);
+
+        if ($width == null & $height == null) {
+            $width = $model->width;
+            $height = $model->height;
         }
 
         $img = Image::cache(function ($image) use ($width, $height, $model) {
@@ -24,6 +32,6 @@ class OnImageController extends Controller
             });
         }, config('konnco.cache_lifetime'), true);
 
-        return $img->stream();
+        return $img->response();
     }
 }
