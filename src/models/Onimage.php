@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Onimage extends Model
 {
+    protected $with = ['onimagetable'];
+
     /**
      * Get the owning commentable model.
      */
