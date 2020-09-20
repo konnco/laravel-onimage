@@ -75,9 +75,9 @@ trait Onimage
             if (count($image['files']) === 0) {
                 // it means this image type should delete all
                 // and it should multiple, if not just leave it
-                if ($image['multiple'] == true) {
-                    $this->onimagetable()->delete();
-                }
+                // if ($image['multiple'] == true) {
+                //     $this->onimagetable()->delete();
+                // }
                 continue;
             }
 
