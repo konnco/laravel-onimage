@@ -103,7 +103,7 @@ trait Onimage
             $model->path = $savePath;
             $model->name = $filename;
             $model->mime = $image->mime();
-            $model->size = $this->onImageStorage()->size($savePath);
+            $model->size = $this->geStorage()->size($savePath);
             $model->width = $image->width();
             $model->height = $image->height();
             $model->driver = config('onimage.driver');
@@ -137,7 +137,7 @@ trait Onimage
      */
     public function onImageGet($attribute)
     {
-        return $this->onimagetable()->where('attribute', $attribute)->get();
+        return collect($this->onimagetable ?? [])->where('attribute', $attribute);
     }
 
     /**
