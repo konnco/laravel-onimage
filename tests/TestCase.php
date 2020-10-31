@@ -33,7 +33,7 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        include_once __DIR__.'/../database/migrations/create_laravel_onimage_table.php.stub';
-        (new \CreateOnimageTable())->up();
+        // include_once __DIR__.'/../database/migrations/create_laravel_onimage_table.php.stub';
+        // (new \CreateOnimageTable())->up();
     }
 }

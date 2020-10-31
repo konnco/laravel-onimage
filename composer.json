@@ -17,7 +17,9 @@
     ],
     "require": {
         "php": "^7.4",
-        "illuminate/contracts": "^8.0"
+        "illuminate/contracts": "^8.0",
+        "intervention/image": "^2.5",
+        "spatie/laravel-image-optimizer": "^1.6"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
@@ -37,10 +39,10 @@
         }
     },
     "scripts": {
-        "psalm": "vendor/bin/psalm",
-        "test": "vendor/bin/phpunit --colors=always",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
-        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+        "psalm": "vendor\\bin\\psalm",
+        "test": "vendor\\bin\\phpunit --colors=always",
+        "test-coverage": "vendor\\bin\\phpunit --coverage-html coverage",
+        "format": "vendor\\bin/php-cs-fixer fix --allow-risky=yes"
     },
     "config": {
         "sort-packages": true
