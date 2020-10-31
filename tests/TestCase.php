@@ -3,8 +3,8 @@
 namespace Konnco\Onimage\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Konnco\Onimage\OnimageServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Konnco\Onimage\OnimageServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Konnco\\Onimage\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+            fn (string $modelName) => 'Konnco\\Onimage\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
@@ -33,9 +33,7 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        /*
         include_once __DIR__.'/../database/migrations/create_laravel_onimage_table.php.stub';
-        (new \CreatePackageTable())->up();
-        */
+        (new \CreateOnimageTable())->up();
     }
 }
