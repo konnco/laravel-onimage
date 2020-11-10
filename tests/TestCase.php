@@ -2,10 +2,8 @@
 
 namespace Konnco\Onimage\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageServiceProvider;
-use Konnco\Onimage\OnimageServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -16,7 +14,7 @@ class TestCase extends Orchestra
 
         $this->loadMigrationsFrom([
             '--database' => 'testing',
-            '--path'     => realpath('tests/migrations'),
+            '--path' => realpath('tests/migrations'),
         ]);
     }
 
@@ -37,7 +35,7 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app)
     {
         $app['config']->set('onimage', [
-            'filesystem' => 'public'
+            'filesystem' => 'public',
         ]);
 
         $app['config']->set('database.default', 'sqlite');

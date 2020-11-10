@@ -11,16 +11,13 @@ trait HasOnimage
 
     public function addOnimage()
     {
-
     }
 
     public function getOnimage()
     {
-
     }
 
     public function clearOnimage()
     {
-
     }
 }

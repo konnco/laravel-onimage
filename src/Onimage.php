@@ -4,7 +4,6 @@ namespace Konnco\Onimage;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Image;
 
 class Onimage extends Model
 {
@@ -20,27 +19,22 @@ class Onimage extends Model
 
     public function moveUp()
     {
-
     }
 
     public function moveDown()
     {
-
     }
 
     public function moveFirst()
     {
-
     }
 
     public function moveLast()
     {
-
     }
 
     public function moveTo()
     {
-
     }
 
     /**
@@ -49,6 +43,5 @@ class Onimage extends Model
      */
     public function store($collection, $content)
     {
-
     }
 }
