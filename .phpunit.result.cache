@@ -1,1 +1,1 @@
-C:37:"PHPUnit\Runner\DefaultTestResultCache":106:{a:2:{s:7:"defects";a:0:{}s:5:"times";a:1:{s:46:"Konnco\Onimage\Tests\ExampleTest::true_is_true";d:0.152;}}}
+C:37:"PHPUnit\Runner\DefaultTestResultCache":349:{a:2:{s:7:"defects";a:2:{s:46:"Konnco\Onimage\Tests\ExampleTest::true_is_true";i:4;s:46:"Konnco\Onimage\Tests\ModelTest::it_has_storage";i:4;}s:5:"times";a:3:{s:46:"Konnco\Onimage\Tests\ExampleTest::true_is_true";d:0.251;s:49:"Konnco\Onimage\Tests\ExampleTest::can_upload_file";d:0.249;s:46:"Konnco\Onimage\Tests\ModelTest::it_has_storage";d:0.266;}}}

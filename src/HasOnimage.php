@@ -2,13 +2,25 @@
 
 namespace Konnco\Onimage;
 
-trait hasOnimage
+trait HasOnimage
 {
-    private function onimageTable()
+    public function onimage()
     {
+        return $this->morphOne(Onimage::class, 'onimagetable');
     }
 
-    private function onimages()
+    public function addOnimage()
     {
+
+    }
+
+    public function getOnimage()
+    {
+
+    }
+
+    public function clearOnimage()
+    {
+
     }
 }

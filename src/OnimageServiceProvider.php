@@ -11,7 +11,7 @@ class OnimageServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/laravel-onimage.php' => config_path('laravel-onimage.php'),
+                __DIR__ . '/../config/onimage.php' => config_path('onimage.php'),
             ], 'config');
 
             $this->publishes([
@@ -35,7 +35,7 @@ class OnimageServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/laravel-onimage.php', 'laravel-onimage');
+        $this->mergeConfigFrom(__DIR__ . '/../config/onimage.php', 'laravel-onimage');
     }
 
     public static function migrationFileExists(string $migrationFileName): bool

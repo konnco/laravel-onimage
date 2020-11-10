@@ -36,9 +36,22 @@ return [
 
 ## Usage
 
-``` php
-$laravel-onimage = new Konnco\Onimage();
-echo $laravel-onimage->echoPhrase('Hello, Konnco!');
+First of all you must include the HasOnimage traits on your model and specify all your images fields on protected variables `$onimageCollections`
+
+```php
+<?php
+use Illuminate\Database\Eloquent\Model;
+use Konnco\Onimage\HasOnimage;
+
+class Post extends Model
+{
+    use HasOnimage;
+    
+    protected $onimageCollections = [
+        "featured" => ["nullable"],
+        "gallery" => ["multiple"]
+    ];
+}
 ```
 
 ## Testing

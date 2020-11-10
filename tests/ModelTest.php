@@ -4,11 +4,17 @@ namespace Konnco\Onimage\Tests;
 
 use Konnco\Onimage\Onimage;
 
-class ExampleTest extends TestCase
+class ModelTest extends TestCase
 {
-    /** @test */
-    public function it_has_storage()
+    public function setUp(): void
     {
-        Onimage::
+        parent::setUp();
+
+    }
+
+    /** @test */
+    public function it_can_upload_image()
+    {
+
     }
 }

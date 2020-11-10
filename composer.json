@@ -51,10 +51,7 @@
         "laravel": {
             "providers": [
                 "Konnco\\Onimage\\OnimageServiceProvider"
-            ],
-            "aliases": {
-                "Onimage": "Konnco\\Onimage\\OnimageFacade"
-            }
+            ]
         }
     },
     "minimum-stability": "dev",
